@@ -1,13 +1,20 @@
 //! Compact representation of `U256`
 
+use codec::{Decode, Encode};
+
+#[cfg(feature = "scale-info")]
+use scale_info::TypeInfo;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
 use crate::U256;
 
 /// Compact representation of `U256`
-#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Copy, Default, Debug)]
+#[derive(
+    Ord, PartialOrd, Eq, PartialEq, Clone, Copy, Default, Debug, Encode, Decode
+)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "scale-info", derive(TypeInfo))]
 pub struct Compact(u32);
 
 impl From<u32> for Compact {

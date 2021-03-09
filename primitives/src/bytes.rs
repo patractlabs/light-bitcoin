@@ -4,8 +4,14 @@
 use alloc::{vec, vec::Vec};
 use core::{fmt, marker, ops, str};
 
+use codec::{Decode, Encode};
+
+#[cfg(feature = "scale-info")]
+use scale_info::TypeInfo;
+
 /// Wrapper around `Vec<u8>`
-#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash, Default)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Hash, Default, Encode, Decode)]
+#[cfg_attr(feature = "scale-info", derive(TypeInfo))]
 pub struct Bytes(Vec<u8>);
 
 impl<'a> From<&'a [u8]> for Bytes {
