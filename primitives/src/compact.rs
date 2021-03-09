@@ -2,8 +2,11 @@
 
 use codec::{Decode, Encode};
 
-#[cfg(feature = "scale-info")]
+#[cfg(feature = "ink")]
+use ink_storage::traits::{PackedLayout, SpreadLayout};
+#[cfg(all(feature = "std", feature = "scale-info"))]
 use scale_info::TypeInfo;
+
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
@@ -14,7 +17,12 @@ use crate::U256;
     Ord, PartialOrd, Eq, PartialEq, Clone, Copy, Default, Debug, Encode, Decode
 )]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "scale-info", derive(TypeInfo))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct Compact(u32);
 
 impl From<u32> for Compact {
