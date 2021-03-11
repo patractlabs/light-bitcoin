@@ -1,19 +1,30 @@
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
+use codec::{Decode, Encode};
 use core::{fmt, str};
 
 use light_bitcoin_crypto::dhash256;
 use light_bitcoin_primitives::{hash_rev, Compact, H256};
 use light_bitcoin_serialization::{deserialize, serialize, Deserializable, Reader, Serializable};
 
+#[cfg(feature = "ink")]
+use ink_storage::traits::{PackedLayout, SpreadLayout};
+#[cfg(all(feature = "std", feature = "scale-info"))]
+use scale_info::TypeInfo;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
 /// A block header, which contains all the block's information except
 /// the actual transactions
-#[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Default)]
-#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Copy, Default, Encode, Decode)]
 #[derive(Serializable, Deserializable)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct BlockHeader {
     /// The protocol version. Should always be 1.
     pub version: u32,
@@ -67,6 +78,7 @@ impl BlockHeader {
     }
 }
 
+#[cfg(not(feature = "ink"))]
 impl codec::Encode for BlockHeader {
     fn encode(&self) -> Vec<u8> {
         let value = serialize::<BlockHeader>(&self);
@@ -74,8 +86,10 @@ impl codec::Encode for BlockHeader {
     }
 }
 
+#[cfg(not(feature = "ink"))]
 impl codec::EncodeLike for BlockHeader {}
 
+#[cfg(not(feature = "ink"))]
 impl codec::Decode for BlockHeader {
     fn decode<I: codec::Input>(value: &mut I) -> Result<Self, codec::Error> {
         let value: Vec<u8> = codec::Decode::decode(value)?;

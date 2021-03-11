@@ -3,6 +3,7 @@
 
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
+use codec::{Decode, Encode};
 use core::{fmt, str};
 
 use light_bitcoin_crypto::dhash256;
@@ -12,6 +13,10 @@ use light_bitcoin_serialization::{
     SERIALIZE_TRANSACTION_WITNESS,
 };
 
+#[cfg(feature = "ink")]
+use ink_storage::traits::{PackedLayout, SpreadLayout};
+#[cfg(all(feature = "std", feature = "scale-info"))]
+use scale_info::TypeInfo;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
 
@@ -23,9 +28,15 @@ const WITNESS_MARKER: u8 = 0;
 const WITNESS_FLAG: u8 = 1;
 
 /// A reference to a transaction output
-#[derive(Ord, PartialOrd, PartialEq, Eq, Copy, Clone)]
-#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Encode, Decode)]
 #[derive(Serializable, Deserializable)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct OutPoint {
     /// The referenced transaction's txid
     ///
@@ -63,7 +74,7 @@ impl OutPoint {
     pub fn null() -> Self {
         OutPoint {
             txid: H256::default(),
-            index: u32::max_value(),
+            index: u32::MAX,
         }
     }
 
@@ -74,8 +85,14 @@ impl OutPoint {
 }
 
 /// A transaction input, which defines old coins to be consumed
-#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Debug, Default)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Debug, Default, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct TransactionInput {
     /// The reference to the previous output that is being used an an input
     pub previous_output: OutPoint,
@@ -139,9 +156,15 @@ impl Deserializable for TransactionInput {
 }
 
 /// A transaction output, which defines new coins to be created from old ones.
-#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Debug)]
-#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Debug, Encode, Decode)]
 #[derive(Serializable, Deserializable)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct TransactionOutput {
     /// The value of the output, in satoshis
     pub value: u64,
@@ -159,8 +182,14 @@ impl Default for TransactionOutput {
 }
 
 /// A Bitcoin transaction, which describes an authenticated movement of coins.
-#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Debug, Default)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Debug, Default, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct Transaction {
     /// The protocol version, is currently expected to be 1 or 2 (BIP 68).
     pub version: i32,
@@ -327,6 +356,7 @@ impl Deserializable for Transaction {
     }
 }
 
+#[cfg(not(feature = "ink"))]
 impl codec::Encode for Transaction {
     fn encode(&self) -> Vec<u8> {
         let value = serialize::<Transaction>(&self);
@@ -334,8 +364,10 @@ impl codec::Encode for Transaction {
     }
 }
 
+#[cfg(not(feature = "ink"))]
 impl codec::EncodeLike for Transaction {}
 
+#[cfg(not(feature = "ink"))]
 impl codec::Decode for Transaction {
     fn decode<I: codec::Input>(value: &mut I) -> Result<Self, codec::Error> {
         let value: Vec<u8> = codec::Decode::decode(value)?;

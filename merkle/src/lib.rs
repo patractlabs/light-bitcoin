@@ -9,11 +9,18 @@ extern crate alloc;
 use alloc::{string::String, vec, vec::Vec};
 use core::fmt;
 
+use codec::{Decode, Encode};
+
 use light_bitcoin_chain::merkle_node_hash;
-use light_bitcoin_primitives::{hash_rev, io, H256};
+use light_bitcoin_primitives::{hash_rev, io, H256, H512};
 use light_bitcoin_serialization::{
     deserialize, serialize, Deserializable, Reader, Serializable, Stream,
 };
+
+#[cfg(feature = "ink")]
+use ink_storage::traits::{PackedLayout, SpreadLayout};
+#[cfg(all(feature = "std", feature = "scale-info"))]
+use scale_info::TypeInfo;
 
 /// The maximum allowed weight for a block, see BIP 141 (network rule)
 const MAX_BLOCK_WEIGHT: u32 = 4_000_000;
@@ -85,7 +92,13 @@ impl From<&str> for Error {
 ///  - varint     number of bytes of flag bits (1-3 bytes)
 ///  - byte[]     flag bits, packed per 8 in a byte, least significant bit first (<= 2*N-1 bits)
 /// The size constraints follow from this.
-#[derive(PartialEq, Eq, Clone, Default)]
+#[derive(Eq, PartialEq, Clone, Default, Encode, Decode)]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct PartialMerkleTree {
     /// The total number of transactions in the block
     pub tx_count: u32,
@@ -349,6 +362,7 @@ impl Deserializable for PartialMerkleTree {
     }
 }
 
+#[cfg(not(feature = "ink"))]
 impl codec::Encode for PartialMerkleTree {
     fn encode(&self) -> Vec<u8> {
         let value = serialize::<PartialMerkleTree>(&self);
@@ -356,8 +370,10 @@ impl codec::Encode for PartialMerkleTree {
     }
 }
 
+#[cfg(not(feature = "ink"))]
 impl codec::EncodeLike for PartialMerkleTree {}
 
+#[cfg(not(feature = "ink"))]
 impl codec::Decode for PartialMerkleTree {
     fn decode<I: codec::Input>(value: &mut I) -> Result<Self, codec::Error> {
         let value: Vec<u8> = codec::Decode::decode(value)?;

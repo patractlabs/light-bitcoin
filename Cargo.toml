@@ -18,6 +18,7 @@ std = [
   "light-bitcoin-serialization/std",
 ]
 derive = ["light-bitcoin-serialization/derive"]
+ink = []
 
 [dependencies]
 light-bitcoin-chain = { path = "chain", default-features = false }

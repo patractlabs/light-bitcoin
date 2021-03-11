@@ -1,5 +1,6 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
+use codec::{Decode, Encode};
 use core::str;
 
 use light_bitcoin_primitives::H256;
@@ -8,13 +9,37 @@ use light_bitcoin_serialization::{
     Serializable, SERIALIZE_TRANSACTION_WITNESS,
 };
 
+#[cfg(feature = "ink")]
+use ink_storage::traits::{PackedLayout, SpreadLayout};
+#[cfg(all(feature = "std", feature = "scale-info"))]
+use scale_info::TypeInfo;
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
+
 use crate::block::Block;
 use crate::indexed_header::IndexedBlockHeader;
 use crate::indexed_transaction::IndexedTransaction;
 use crate::merkle_root::merkle_root;
 use crate::transaction::Transaction;
 
-#[derive(Ord, PartialOrd, Eq, Clone, Debug, Default, Deserializable)]
+#[derive(
+    Ord,
+    PartialOrd,
+    Eq,
+    Clone,
+    Debug,
+    Default,
+    Encode,
+    Decode,
+    Deserializable
+)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct IndexedBlock {
     pub header: IndexedBlockHeader,
     pub transactions: Vec<IndexedTransaction>,

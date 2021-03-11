@@ -1,5 +1,6 @@
 #[cfg(not(feature = "std"))]
 use alloc::{vec, vec::Vec};
+use codec::{Decode, Encode};
 use core::str;
 
 use light_bitcoin_primitives::H256;
@@ -9,9 +10,23 @@ use crate::block_header::BlockHeader;
 use crate::merkle_root::merkle_root;
 use crate::transaction::Transaction;
 
+#[cfg(feature = "ink")]
+use ink_storage::traits::{PackedLayout, SpreadLayout};
+#[cfg(all(feature = "std", feature = "scale-info"))]
+use scale_info::TypeInfo;
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
+
 /// A Bitcoin block, which is a collection of transactions with an attached proof of work.
-#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Debug, Default)]
+#[derive(Ord, PartialOrd, Eq, PartialEq, Clone, Default, Encode, Decode)]
 #[derive(Serializable, Deserializable)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct Block {
     /// The block header
     pub header: BlockHeader,

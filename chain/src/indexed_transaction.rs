@@ -1,12 +1,27 @@
+use codec::{Decode, Encode};
 use core::fmt;
 
 use light_bitcoin_primitives::{hash_rev, io, H256};
 use light_bitcoin_serialization::{Deserializable, Reader};
 
+#[cfg(feature = "ink")]
+use ink_storage::traits::{PackedLayout, SpreadLayout};
+#[cfg(all(feature = "std", feature = "scale-info"))]
+use scale_info::TypeInfo;
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
+
 use crate::read_and_hash::ReadAndHash;
 use crate::transaction::Transaction;
 
-#[derive(Ord, PartialOrd, Eq, Clone, Default)]
+#[derive(Ord, PartialOrd, Eq, Clone, Default, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+#[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+#[cfg_attr(
+    all(feature = "std", feature = "ink"),
+    derive(ink_storage::traits::StorageLayout)
+)]
 pub struct IndexedTransaction {
     pub hash: H256,
     pub raw: Transaction,

@@ -1,4 +1,4 @@
-pub use primitive_types::{H160, H256, H512};
+pub use primitive_types::{H160, H512};
 
 use fixed_hash::construct_fixed_hash;
 use impl_codec::impl_fixed_hash_codec;
@@ -26,6 +26,13 @@ construct_fixed_hash! {
     #[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
     #[cfg_attr(all(feature = "std", feature = "ink"), derive(StorageLayout))]
     pub struct H32(4);
+}
+construct_fixed_hash! {
+    /// Fixed-size uninterpreted hash type with 32 bytes (256 bits) size.
+    #[cfg_attr(feature = "ink", derive(PackedLayout, SpreadLayout))]
+    #[cfg_attr(all(feature = "std", feature = "scale-info"), derive(TypeInfo))]
+    #[cfg_attr(all(feature = "std", feature = "ink"), derive(StorageLayout))]
+    pub struct H256(32);
 }
 construct_fixed_hash! {
     /// Fixed-size uninterpreted hash type with 33 bytes (264 bits) size.
@@ -182,6 +189,7 @@ mod serde_impls {
     use super::*;
 
     impl_fixed_hash_serde!(H32, 4);
+    impl_fixed_hash_serde!(H256, 32);
     impl_fixed_hash_serde!(H264, 33);
     impl_fixed_hash_serde!(H520, 65);
 }
@@ -190,6 +198,7 @@ mod codec_impls {
     use super::*;
 
     impl_fixed_hash_codec!(H32, 4);
+    impl_fixed_hash_codec!(H256, 32);
     impl_fixed_hash_codec!(H264, 33);
     impl_fixed_hash_codec!(H520, 65);
 }
