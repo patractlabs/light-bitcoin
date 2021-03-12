@@ -19,6 +19,8 @@ std = [
   "ink_env/std",
 ]
 ink = [
+  "light-bitcoin-primitives/ink",
+
   "ink_env"
 ]
 
@@ -31,4 +33,4 @@ siphasher = { version = "0.3", default-features = false }
 
 light-bitcoin-primitives = { path = "../primitives", default-features = false }
 
-ink_env = { version = "3.0.0-rc2", git = "https://github.com/paritytech/ink", default-features = false, optional = true }
+ink_env = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false, optional = true }

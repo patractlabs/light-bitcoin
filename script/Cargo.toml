@@ -16,6 +16,12 @@ std = [
   "light-bitcoin-primitives/std",
   "light-bitcoin-serialization/std",
 ]
+ink = [
+  "light-bitcoin-chain/ink",
+  "light-bitcoin-crypto/ink",
+  "light-bitcoin-keys/ink",
+  "light-bitcoin-primitives/ink",
+]
 
 [dependencies]
 hex = { version = "0.4", default-features = false }

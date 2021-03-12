@@ -18,6 +18,10 @@ std = [
   "light-bitcoin-primitives/std",
   "light-bitcoin-serialization/std",
 ]
+ink = [
+  "light-bitcoin-crypto/ink",
+  "light-bitcoin-primitives/ink",
+]
 
 [dependencies]
 bs58 = { version = "0.4", default-features = false, features = ["alloc"] }

@@ -20,6 +20,9 @@ std = [
   "ink_primitives/std",
 ]
 ink = [
+  "light-bitcoin-chain/ink",
+  "light-bitcoin-primitives/ink",
+
   "ink_storage",
   "ink_primitives",
 ]
@@ -32,9 +35,9 @@ light-bitcoin-chain = { path = "../chain", default-features = false }
 light-bitcoin-primitives = { path = "../primitives", default-features = false }
 light-bitcoin-serialization = { path = "../serialization", default-features = false, features = ["derive"] }
 
-ink_storage = { version = "3.0.0-rc2", git = "https://github.com/paritytech/ink", default-features = false, optional = true }
-ink_metadata = { version = "3.0.0-rc2", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
-ink_primitives = { version = "3.0.0-rc2", git = "https://github.com/paritytech/ink", default-features = false, optional = true }
+ink_storage = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false, optional = true }
+ink_metadata = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false, features = ["derive"], optional = true }
+ink_primitives = { version = "3.0.0-rc3", git = "https://github.com/paritytech/ink", default-features = false, optional = true }
 
 [dev-dependencies]
 hashbrown = "0.9"
